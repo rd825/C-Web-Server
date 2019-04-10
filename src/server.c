@@ -135,15 +135,25 @@ void get_file(int fd, struct cache *cache, char *request_path)
     snprintf(filepath, sizeof filepath, "%s/%s", SERVER_ROOT, request_path);
     filedata = file_load(filepath);
 
+    // grab file type
+    char *mime_type = mime_type_get(filepath);
+
+    if (filedata == NULL & strcmp(request_path, "/") == 0)
+    {
+        snprintf(filepath, sizeof filepath, "%s/index.html", SERVER_ROOT);
+        filedata = file_load(filepath);
+        mime_type = mime_type_get(filepath);
+
+        send_response(fd, "HTTP/1.1 200 OK", mime_type, filedata->data, filedata->size);
+        file_free(filedata);
+        return;
+    }
     // if no file, 404
-    if (filedata == NULL)
+    else if (filedata == NULL)
     {
         resp_404(fd);
         return;
     }
-
-    // grab file type
-    char *mime_type = mime_type_get(filepath);
 
     // send valid file
     send_response(fd, "HTTP/1.1 200 OK", mime_type, filedata->data, filedata->size);
