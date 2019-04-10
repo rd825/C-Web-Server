@@ -131,6 +131,7 @@ void get_file(int fd, struct cache *cache, char *request_path)
     struct file_data *filedata;
 
     (void)cache;
+    struct cache_entry *entry = cache_get(cache, request_path);
 
     snprintf(filepath, sizeof filepath, "%s/%s", SERVER_ROOT, request_path);
     filedata = file_load(filepath);
@@ -140,6 +141,7 @@ void get_file(int fd, struct cache *cache, char *request_path)
 
     if (filedata == NULL & strcmp(request_path, "/") == 0)
     {
+
         snprintf(filepath, sizeof filepath, "%s/index.html", SERVER_ROOT);
         filedata = file_load(filepath);
         mime_type = mime_type_get(filepath);
@@ -155,11 +157,18 @@ void get_file(int fd, struct cache *cache, char *request_path)
         return;
     }
 
-    // send valid file
-    send_response(fd, "HTTP/1.1 200 OK", mime_type, filedata->data, filedata->size);
-
-    // free filedata struct
-    file_free(filedata);
+    if (entry)
+    {
+        // send valid file from cache & free filedata struct
+        send_response(fd, "HTTP/1.1 200 OK", entry->content_type, entry->content, entry->content_length);
+        file_free(filedata);
+    }
+    else
+    {
+        // send valid file & free filedata struct
+        send_response(fd, "HTTP/1.1 200 OK", mime_type, filedata->data, filedata->size);
+        file_free(filedata);
+    }
 }
 
 /**
