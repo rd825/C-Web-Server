@@ -87,7 +87,7 @@ int send_response(int fd, char *header, char *content_type, void *body, int cont
 void get_d20(int fd)
 {
     // Generate a random number between 1 and 20 inclusive
-    char body[3];
+    char body[16];
     int rand_num = rand() % 20 + 1;
     sprintf(body, "%d\n", rand_num);
 
@@ -130,7 +130,7 @@ void get_file(int fd, struct cache *cache, char *request_path)
     char filepath[4096];
     struct file_data *filedata;
 
-    (void)cache;
+    // (void)cache;
     struct cache_entry *entry = cache_get(cache, request_path);
 
     snprintf(filepath, sizeof filepath, "%s/%s", SERVER_ROOT, request_path);
@@ -204,7 +204,7 @@ void handle_http_request(int fd, struct cache *cache)
     }
 
     // Read the three components of the first request line
-    (void)cache;
+    // (void)cache;
 
     sscanf(request, "%s %s", request_type, request_path);
     printf("REQUEST: %s %s", request_type, request_path);

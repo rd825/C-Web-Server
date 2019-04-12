@@ -33,6 +33,9 @@ struct cache_entry *alloc_entry(char *path, char *content_type, void *content, i
  */
 void free_entry(struct cache_entry *entry)
 {
+    free(entry->path);
+    free(entry->content_type);
+    free(entry->content);
     free(entry);
 }
 
@@ -166,7 +169,7 @@ void cache_put(struct cache *cache, char *path, char *content_type, void *conten
  */
 struct cache_entry *cache_get(struct cache *cache, char *path)
 {
-    void *data = hashtable_get(cache->index, path);
+    struct cache_entry *data = hashtable_get(cache->index, path);
 
     if (data == NULL)
     {
